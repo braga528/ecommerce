@@ -1,0 +1,56 @@
+$.fn.editable.defaults.mode = 'inline';
+$.fn.editable.defaults.ajaxOptions = {type: 'PUT'};
+
+$(document).ready(function(){
+    $(".set-guide-number").editable();
+
+    $(".select-status").editable({
+        source: [
+            {value:"creado", text: "creado"},
+            {value:"enviado", text: "enviado"},
+            {value:"recibido", text: "recibido"}
+        ]
+    });
+
+    $(".add-to-cart").on("submit",function (ev) {
+        ev.preventDefault();
+
+        var $form = $(this);
+        var $button = $form.find("[type='submit']");
+
+        $.ajax({
+            url: $form.attr("action"),
+            method: $form.attr("method"),
+            data: $form.serialize(),
+            dataType: "JSON",
+            beforeSend: function () {
+                $button.val("Cargando...");
+            },
+            success: function () {
+                $button.css("background-color","#00c853").val("Agregado");
+
+                //console.log(data);
+
+                $(".circle-shopping-cart").html(data.products_count).addClass("highlight");
+
+                setTimeout(function () {
+                    restartButton($button);
+                },2000);
+            },
+            error: function () {
+                console.log(err);
+                $button.css("background-color","#d50000").val("Hubo un error");
+
+                setTimeout(function () {
+                    restartButton($button);
+                },2000);
+            }
+        });
+
+        return false;
+    });
+    function restartButton($button) {
+        $button.val("agregar al carrito").attr("style","");
+        $(".circle-shopping-cart").removeClass("highlight");
+    }
+});
